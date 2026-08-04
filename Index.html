@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INNOV RANK - LIGHTNING FAST V14</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root { --primary: #00f0ff; --secondary: #ff8a00; --bg-dark: #030712; --glass-bg: rgba(10, 15, 30, 0.88); }
+        .theme-default { --primary: #00f0ff; --secondary: #ff8a00; background-color: #030712; }
+        .theme-neon-pink { --primary: #ff007f; --secondary: #00f0ff; background-color: #12030f; }
+        .theme-toxic-green { --primary: #39ff14; --secondary: #ff00ff; background-color: #031207; }
+        .theme-golden-royal { --primary: #ffd700; --secondary: #fff; background-color: #121203; }
+        .theme-rgb-gaming { --primary: #ff0055; --secondary: #00ffcc; background-color: #080312; }
+        .theme-aurora { --primary: #00ff88; --secondary: #00bbff; background-color: #021019; }
+        .theme-lava { --primary: #ff3300; --secondary: #ff9900; background-color: #140502; }
+        .theme-blizzard { --primary: #e0f2fe; --secondary: #38bdf8; background-color: #0b1329; }
+
+        body { font-family: 'Kanit', sans-serif; background-color: var(--bg-dark); color: #fff; overflow-x: hidden; transition: background 0.4s ease; }
+        h1, h2, h3, .cyber-font { font-family: 'Orbitron', sans-serif; }
+        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--primary); box-shadow: 0 0 25px rgba(0, 240, 255, 0.1); border-radius: 16px; }
+        .neon-text-main { text-shadow: 0 0 12px var(--primary); color: var(--primary); }
+        .neon-text-sec { text-shadow: 0 0 12px var(--secondary); color: var(--secondary); }
+        .btn-cyber { background: linear-gradient(45deg, transparent 5%, var(--primary) 5%); color: #000; box-shadow: 4px 0px 0px var(--secondary); font-weight: bold; transition: 0.15s; }
+        .btn-cyber:active:not(:disabled) { transform: translateX(2px); box-shadow: 1px 0px 0px var(--secondary); }
+        input, select { background: rgba(0, 0, 0, 0.7) !important; border: 1px solid var(--primary) !important; color: var(--primary) !important; }
+        
+        .avatar-frame-wrapper { position: relative; width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .avatar-box { position: absolute; inset: 4px; border-radius: 50%; overflow: hidden; background: #000; z-index: 2; }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .frame-none { border: 2px solid rgba(255,255,255,0.2); }
+        .frame-BABY { border: 3px solid #9ca3af; box-shadow: 0 0 10px rgba(156, 163, 175, 0.3); }
+        .frame-HARD { border: 4px solid #ff8a00; box-shadow: 0 0 15px #ff8a00; }
+        .frame-PRO { border: 4px solid #00f0ff; box-shadow: 0 0 20px #00f0ff; }
+        .frame-LnW { border: 4px solid transparent; background: linear-gradient(90deg, red, yellow, green, cyan, blue, magenta, red) border-box; -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; background-size: 200% 200%; animation: rainbow 2s linear infinite; box-shadow: 0 0 25px #fff; }
+        .frame-RGB { border: 4px solid transparent; background: linear-gradient(45deg, #ff0055, #00ffcc, #ff00ff) border-box; background-size: 200% 200%; animation: rgbBorder 2s linear infinite; box-shadow: 0 0 25px #00ffcc; }
+        .frame-Lava { border: 4px solid #ff3300; box-shadow: 0 0 25px #ff3300, inset 0 0 15px #ff9900; }
+        .frame-Diamond { border: 4px solid #38bdf8; box-shadow: 0 0 30px #38bdf8, inset 0 0 20px #e0f2fe; }
+
+        @keyframes rainbow { 100% { background-position: 200% 0; } }
+        @keyframes rgbBorder { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .exp-bar-container { width: 100%; background: #111; border-radius: 10px; height: 8px; overflow: hidden; border: 1px solid var(--primary); }
+        .exp-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 10px var(--primary); }
+        
+        #app-view, #register-form, #profile-modal, #record-modal, #gacha-modal, #gacha-choice-modal, #quest-modal, #loading-overlay { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-3 sm:p-6 relative theme-default" id="body-bg">
+
+    <div id="loading-overlay" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black/95 backdrop-blur-md">
+        <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-[var(--primary)] mb-4"></div>
+        <h2 class="cyber-font text-xl neon-text-main tracking-widest">CONNECTING CLOUD...</h2>
+    </div>
+    
+    <div id="toast" class="fixed bottom-5 right-5 z-[200] transform translate-y-20 opacity-0 transition-all duration-300 glass-panel p-3 flex items-center gap-3">
+        <i class="fas fa-info-circle text-[var(--primary)] text-lg"></i><span id="toast-msg" class="font-bold text-sm">Message</span>
+    </div>
+
+    <!-- AUTH VIEW -->
+    <div id="auth-view" class="w-full max-w-md glass-panel p-6 sm:p-8 mt-10">
+        <div class="flex justify-center mb-6"><img src="logo.jpeg" class="w-28 h-28 object-cover rounded-full border-2 border-[var(--primary)] shadow-[0_0_15px_var(--primary)]" onerror="this.src='https://via.placeholder.com/150'"></div>
+        <h1 class="cyber-font text-3xl text-center mb-2 neon-text-main">INNOV <span class="neon-text-sec">RANK</span></h1>
+        <p class="text-center text-xs text-gray-400 mb-6">LIGHTNING FAST CLOUD EDITION</p>
+        
+        <form id="login-form" class="space-y-4">
+            <div><label class="text-xs text-[var(--primary)] cyber-font">ROOM CODE (รหัสห้อง)</label><input type="text" id="login-roomcode" class="w-full p-3 rounded-lg mt-1 text-sm uppercase font-bold" placeholder="เช่น ROOM-01" required></div>
+            <div><label class="text-xs text-[var(--primary)] cyber-font">USERNAME</label><input type="text" id="login-user" class="w-full p-3 rounded-lg mt-1 text-sm" required></div>
+            <div><label class="text-xs text-[var(--primary)] cyber-font">PASSCODE</label><input type="password" id="login-pass" class="w-full p-3 rounded-lg mt-1 text-sm" required></div>
+            <button type="submit" class="w-full btn-cyber py-3.5 mt-2 rounded-lg">LOGIN ROOM</button>
+            <p class="text-center text-xs text-gray-400 mt-4 cursor-pointer hover:text-[var(--primary)]" onclick="toggleAuth('register')">NEW AGENT? REGISTER (+300 PTS)</p>
+        </form>
+
+        <form id="register-form" class="space-y-3">
+            <div><label class="text-xs text-[var(--secondary)] cyber-font">ROOM CODE</label><input type="text" id="reg-roomcode" class="w-full p-2.5 rounded-lg mt-1 text-sm uppercase font-bold" placeholder="เช่น ROOM-01" required></div>
+            <div><label class="text-xs text-[var(--secondary)] cyber-font">FULL NAME</label><input type="text" id="reg-name" class="w-full p-2.5 rounded-lg mt-1 text-sm" required></div>
+            <div><label class="text-xs text-[var(--secondary)] cyber-font">SCHOOL</label><input type="text" id="reg-school" class="w-full p-2.5 rounded-lg mt-1 text-sm" required></div>
+            <div><label class="text-xs text-[var(--secondary)] cyber-font">USERNAME</label><input type="text" id="reg-user" class="w-full p-2.5 rounded-lg mt-1 text-sm" required></div>
+            <div><label class="text-xs text-[var(--secondary)] cyber-font">PASSCODE</label><input type="password" id="reg-pass" class="w-full p-2.5 rounded-lg mt-1 text-sm" required></div>
+            <button type="submit" id="btn-reg" class="w-full btn-cyber py-3 mt-3 rounded-lg">CREATE & JOIN ROOM</button>
+            <p class="text-center text-xs text-gray-400 mt-3 cursor-pointer hover:text-[var(--secondary)]" onclick="toggleAuth('login')">RETURN TO LOGIN</p>
+        </form>
+    </div>
+
+    <!-- APP VIEW -->
+    <div id="app-view" class="w-full max-w-7xl h-full flex flex-col gap-6">
+        <nav class="glass-panel p-4 flex justify-between items-center flex-wrap gap-4">
+            <div class="flex items-center gap-3">
+                <img src="logo.jpeg" class="w-11 h-11 rounded-full border border-[var(--primary)] object-cover" onerror="this.src='https://via.placeholder.com/150'">
+                <div>
+                    <h1 class="cyber-font text-lg hidden sm:block">INNOV <span class="neon-text-sec">RANK</span></h1>
+                    <span id="nav-room-badge" class="text-[10px] bg-[var(--secondary)]/20 text-[var(--secondary)] border border-[var(--secondary)] px-2 py-0.5 rounded font-bold">ROOM: -</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 bg-black/60 p-2.5 rounded-xl border border-[var(--primary)]">
+                <div class="text-center px-2 border-r border-gray-700">
+                    <p class="text-[9px] text-gray-400 cyber-font">LV</p>
+                    <p id="ui-level" class="text-lg font-bold neon-text-main">1</p>
+                </div>
+                <div class="w-24 sm:w-32">
+                    <p class="text-[9px] text-gray-400 text-right"><span id="ui-exp">0</span>/100 EXP</p>
+                    <div class="exp-bar-container"><div id="ui-exp-bar" class="exp-bar"></div></div>
+                </div>
+                <div class="text-center px-2 border-l border-gray-700">
+                    <p class="text-[9px] text-gray-400 cyber-font">PTS</p>
+                    <p class="text-lg font-bold text-yellow-400"><i class="fas fa-coins text-xs"></i> <span id="ui-points">300</span></p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="relative w-12 h-12 cursor-pointer hover:scale-105 transition" onclick="openProfileModal()">
+                    <div id="ui-frame" class="w-full h-full rounded-full flex items-center justify-center bg-gray-950 frame-none">
+                        <div class="avatar-frame-wrapper"><div class="avatar-box"><img id="nav-avatar" src="" class="w-full h-full object-cover"></div></div>
+                    </div>
+                </div>
+                <button onclick="logout()" class="text-red-500 hover:text-red-400 p-2"><i class="fas fa-power-off text-xl"></i></button>
+            </div>
+        </nav>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button onclick="openRecordModal()" class="glass-panel p-4 flex flex-col items-center justify-center gap-2 hover:bg-[var(--primary)] hover:text-black transition group cursor-pointer">
+                <i class="fas fa-trophy text-2xl text-[var(--primary)] group-hover:text-black"></i><span class="cyber-font text-xs font-bold">บันทึกผลแข่ง</span>
+            </button>
+            <button onclick="openQuestModal()" class="glass-panel p-4 flex flex-col items-center justify-center gap-2 hover:bg-[var(--secondary)] hover:text-black transition group cursor-pointer relative">
+                <div id="quest-noti" class="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full animate-ping hidden"></div>
+                <i class="fas fa-microchip text-2xl text-[var(--secondary)] group-hover:text-black"></i><span class="cyber-font text-xs font-bold">ภารกิจ ARDUINO</span>
+            </button>
+            <button onclick="openGachaChoice()" class="glass-panel p-4 flex flex-col items-center justify-center gap-2 hover:bg-yellow-400 hover:text-black transition group cursor-pointer col-span-2 md:col-span-1 border-yellow-400">
+                <i class="fas fa-box-open text-2xl text-yellow-400 group-hover:text-black"></i><span class="cyber-font text-xs font-bold">สุ่มกาชา (100 Pts)</span>
+            </button>
+            <div class="glass-panel p-4 flex flex-col items-center justify-center gap-1 hidden md:flex">
+                <p class="text-[9px] text-gray-400 cyber-font">ROOM ENTRIES</p><p id="stat-entries" class="text-2xl font-bold neon-text-main">0</p>
+            </div>
+        </div>
+
+        <div class="glass-panel p-6">
+            <div class="flex justify-between items-center mb-6 border-b border-[var(--secondary)] pb-3 flex-wrap gap-2">
+                <h2 class="cyber-font text-2xl neon-text-sec"><i class="fas fa-crown mr-2"></i> ROOM LEADERBOARD</h2>
+                <span id="hall-room-label" class="text-xs bg-black/60 px-3 py-1 rounded border border-[var(--secondary)] text-yellow-400 font-bold">ROOM: -</span>
+            </div>
+            <div id="tier-list-container" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+        </div>
+
+        <div class="glass-panel p-6 overflow-x-auto mb-10">
+            <h2 class="cyber-font text-xl text-[var(--primary)] mb-4"><i class="fas fa-history mr-2"></i> ROOM TOURNAMENT BATTLES</h2>
+            <div class="space-y-3" id="recent-battles-container"></div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="gacha-choice-modal" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/95 backdrop-blur-lg p-4">
+        <div class="glass-panel p-8 w-full max-w-lg text-center relative">
+            <button onclick="closeGachaChoice()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl"><i class="fas fa-times"></i></button>
+            <h2 class="cyber-font text-3xl mb-2 text-yellow-400">GACHA SELECTOR</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                <button onclick="startGachaProcess('theme')" class="glass-panel p-6 flex flex-col items-center justify-center gap-3 hover:bg-[var(--primary)] hover:text-black transition group cursor-pointer border-[var(--primary)]">
+                    <i class="fas fa-palette text-4xl text-[var(--primary)] group-hover:text-black"></i>
+                    <span class="cyber-font font-bold text-sm">สุ่มสีธีมเว็บไซต์</span>
+                </button>
+                <button onclick="startGachaProcess('frame')" class="glass-panel p-6 flex flex-col items-center justify-center gap-3 hover:bg-yellow-400 hover:text-black transition group cursor-pointer border-yellow-400">
+                    <i class="fas fa-shield-alt text-4xl text-yellow-400 group-hover:text-black"></i>
+                    <span class="cyber-font font-bold text-sm">สุ่มกรอบโปรไฟล์</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gacha-modal" class="fixed inset-0 z-[160] flex items-center justify-center bg-black/95 backdrop-blur-lg">
+        <div class="text-center relative w-full h-full flex flex-col items-center justify-center p-4">
+            <button onclick="closeGachaModal()" class="absolute top-8 right-8 text-white hover:text-red-500 text-4xl z-[170]"><i class="fas fa-times"></i></button>
+            <div id="ai-processing-box" class="flex flex-col items-center justify-center">
+                <div class="relative w-40 h-40 mb-6 flex items-center justify-center">
+                    <div class="absolute inset-0 rounded-full border-4 border-dashed border-[var(--primary)] animate-spin" style="animation-duration: 4s;"></div>
+                    <i class="fas fa-brain text-5xl text-[var(--primary)] animate-pulse"></i>
+                </div>
+                <h3 class="cyber-font text-2xl neon-text-main mb-2">QUANTUM RNG PROCESSING</h3>
+            </div>
+            <div id="gacha-result" class="absolute inset-0 bg-black/95 flex flex-col items-center justify-center hidden z-[180] p-4">
+                <h1 id="gacha-rarity" class="cyber-font text-5xl mb-6">RARE!</h1>
+                <div id="gacha-item-display" class="flex items-center justify-center mb-4"></div>
+                <p id="gacha-item-name" class="text-xl font-bold"></p>
+                <button onclick="document.getElementById('gacha-result').style.display='none'; closeGachaModal();" class="mt-8 btn-cyber py-3 px-10 rounded-xl">รับรางวัล</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quest-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+        <div class="glass-panel p-6 w-full max-w-xl relative max-h-[85vh] overflow-y-auto" id="quest-box">
+            <button onclick="closeQuestModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            <h2 class="cyber-font text-xl mb-1 neon-text-sec"><i class="fas fa-microchip mr-2"></i> ARDUINO DAILY QUESTS</h2>
+            <div id="quest-content" class="space-y-3 mt-4"></div>
+        </div>
+    </div>
+
+    <div id="record-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass-panel p-6 w-full max-w-md relative max-h-[90vh] overflow-y-auto" id="record-box">
+            <button onclick="closeRecordModal()" class="absolute top-4 right-4 text-gray-400 hover:text-[var(--primary)]"><i class="fas fa-times text-xl"></i></button>
+            <h2 class="cyber-font text-xl mb-4 text-[var(--primary)] border-b border-[var(--primary)] pb-2"><i class="fas fa-trophy mr-2"></i> SUBMIT RECORD</h2>
+            <form id="record-form" class="space-y-3 text-xs">
+                <div><label class="text-gray-400 cyber-font">STUDENT NAME</label><input type="text" id="entry-name" class="w-full p-2.5 rounded-lg mt-1" required readonly></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="text-gray-400 cyber-font">GRADE</label><select id="entry-grade" class="w-full p-2.5 rounded-lg mt-1" required><option value="" disabled selected>เลือกระดับชั้น</option><option value="ม.1">ม.1</option><option value="ม.2">ม.2</option><option value="ม.3">ม.3</option><option value="ม.4">ม.4</option><option value="ม.5">ม.5</option><option value="ม.6">ม.6</option></select></div>
+                    <div><label class="text-gray-400 cyber-font">ROOM</label><input type="number" id="entry-room" class="w-full p-2.5 rounded-lg mt-1" required min="1" placeholder="ระบุห้อง"></div>
+                </div>
+                <div><label class="text-gray-400 cyber-font">COMPETITION NAME</label><input type="text" id="entry-comp" class="w-full p-2.5 rounded-lg mt-1" required placeholder="ชื่อรายการ"></div>
+                <div><label class="text-gray-400 cyber-font">CATEGORY</label><select id="entry-category" class="w-full p-2.5 rounded-lg mt-1" required><option value="" disabled selected>หมวดหมู่</option><option value="Innovation">นวัตกรรม</option><option value="Robotics">หุ่นยนต์</option><option value="E-Sports">E-Sports</option><option value="โครงงานวิทยาศาสตร์">โครงงานวิทยาศาสตร์</option><option value="ประกวดIDEA">ประกวดIDEA</option><option value="อื่นๆ">อื่นๆ</option></select></div>
+                <div><label class="text-gray-400 cyber-font">LEVEL</label><select id="entry-level" class="w-full p-2.5 rounded-lg mt-1" required><option value="" disabled selected>ระดับ</option><option value="School">ระดับโรงเรียน</option><option value="Regional">ระดับภูมิภาค</option><option value="National">ระดับประเทศ</option><option value="International">ระดับนานาชาติ</option><option value="อื่นๆ">อื่นๆ</option></select></div>
+                <div><label class="text-gray-400 cyber-font">RESULT</label><select id="entry-result" class="w-full p-2.5 rounded-lg mt-1" required><option value="" disabled selected>ผลรางวัล</option><option value="Gold">เหรียญทอง</option><option value="Silver">เหรียญเงิน</option><option value="Bronze">เหรียญทองแดง</option><option value="Participant">เข้าร่วม</option></select></div>
+                <button type="submit" class="w-full btn-cyber py-3 mt-3 text-sm rounded-lg">UPLOAD RECORD</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass-panel p-6 w-full max-w-sm relative" id="profile-box">
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fas fa-times text-lg"></i></button>
+            <h2 class="cyber-font text-lg text-[var(--primary)] mb-4 text-center">AGENT PROFILE</h2>
+            <div class="flex flex-col items-center mb-4 relative">
+                <div id="modal-frame" class="w-24 h-24 rounded-full p-1 flex items-center justify-center relative cursor-pointer hover:opacity-80 transition group bg-gray-950 frame-none">
+                    <div class="avatar-frame-wrapper"><div class="avatar-box"><img id="modal-avatar" src="" class="w-full h-full object-cover"></div></div>
+                </div>
+                <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+                <button onclick="document.getElementById('avatar-upload').click()" class="text-[10px] text-[var(--primary)] mt-2">CHANGE IMAGE</button>
+                <p class="text-[9px] text-yellow-400 mt-1 font-bold" id="profile-frame-name">FRAME: NORMAL</p>
+                <p class="text-[9px] text-[var(--primary)] font-bold" id="profile-theme-name">THEME: DEFAULT</p>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div><label class="text-gray-400 cyber-font">ROOM CODE</label><input type="text" id="profile-roomcode" class="w-full p-2 rounded-lg mt-1 text-center font-bold uppercase" readonly></div>
+                <div><label class="text-gray-400 cyber-font">DISPLAY NAME</label><input type="text" id="profile-name" class="w-full p-2.5 rounded-lg mt-1 text-center text-sm"></div>
+                <div><label class="text-gray-400 cyber-font">SCHOOL</label><input type="text" id="profile-school" class="w-full p-2.5 rounded-lg mt-1 text-center text-sm"></div>
+                <div><label class="text-gray-400 cyber-font">STATUS (ไม่เกิน 30 ตัวอักษร)</label><input type="text" id="profile-status" maxlength="30" class="w-full p-2.5 rounded-lg mt-1 text-center text-sm"></div>
+                <button onclick="saveProfile()" class="w-full btn-cyber py-2.5 mt-3 text-sm rounded-lg">SAVE PROFILE</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🔥🔥🔥 นำลิงก์ Web App จาก Google Apps Script มาวางแทนที่เครื่องหมายคำพูดด้านล่างนี้ 🔥🔥🔥
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzslEoz3RTivGOCL90R2RKjPyYhnnn0HgP3F63uSCBcL6LMKDCFOYspC97Rk-OHvsAj9g/exec'; 
+        // ===========================================================================================
+
+        const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+        const memSynth = new Tone.MembraneSynth().toDestination();
+        synth.volume.value = -15; memSynth.volume.value = -10;
+
+        function playSound(type) {
+            try {
+                if (Tone.context.state !== 'running') Tone.context.resume();
+                if (type === 'success') synth.triggerAttackRelease(["C5", "E5", "G5"], "8n");
+                else if (type === 'click') synth.triggerAttackRelease("C6", "32n");
+                else if (type === 'error') synth.triggerAttackRelease("C3", "8n");
+                else if (type === 'gacha-roll') memSynth.triggerAttackRelease("C2", "16n", Tone.now(), 0.5);
+                else if (type === 'gacha-win') { synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "2n"); if(typeof confetti!=='undefined') confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } }); }
+                else if (type === 'gacha-epic') { synth.triggerAttackRelease(["E5", "G5", "B5", "E6"], "1n"); if(typeof confetti!=='undefined') confetti({ particleCount: 300, spread: 150, origin: { y: 0.6 }, colors: ['#ff0000', '#ffff00', '#00ff00'] }); }
+            } catch(e) {}
+        }
+        document.addEventListener('click', () => { if (Tone.context.state !== 'running') Tone.context.resume(); }, { once: true });
+
+        // โหลดข้อมูลจาก Cache เครื่องมาก่อนทันที (Zero Delay เปิดมาไวปานจรวด)
+        let usersDB = JSON.parse(localStorage.getItem('innov_users_cache_v14')) || [];
+        let recordsDB = JSON.parse(localStorage.getItem('innov_records_cache_v14')) || [];
+        let currentUser = null;
+        let gameData = {};
+
+        const masterQuestBank = [
+            { q: "บอร์ด Arduino Uno ใช้ชิปไมโครคอนโทรลเลอร์เบอร์อะไร?", opts: ["ATmega328P", "ESP32", "ATmega2560"], ans: 0 },
+            { q: "คำสั่งที่ใช้ตั้งค่าโหมดขา (Pin) คือคำสั่งใด?", opts: ["digitalWrite", "pinMode", "analogRead"], ans: 1 },
+            { q: "ฟังก์ชันใดใน Arduino ที่ทำงานวนลูปไม่รู้จบ?", opts: ["setup()", "main()", "loop()"], ans: 2 },
+            { q: "ขา Analog ของ Arduino Uno มีกี่ขา?", opts: ["4 ขา", "6 ขา (A0-A5)", "14 ขา"], ans: 1 },
+            { q: "คำสั่ง delay(1000); หมายถึงการหน่วงเวลากี่วินาที?", opts: ["1 วินาที", "10 วินาที", "1000 วินาที"], ans: 0 }
+        ];
+
+        function getGameData(data) {
+            let p = {};
+            try { p = typeof data === 'string' ? JSON.parse(data) : (data || {}); } catch(e) { p = {}; }
+            return { 
+                points: parseInt(p.points)||0, 
+                exp: parseInt(p.exp)||0, 
+                level: parseInt(p.level)||1, 
+                frame: p.frame||'none', 
+                theme: p.theme||'default', 
+                statusText: p.statusText||'กำลังพัฒนานวัตกรรมสุดล้ำ 🚀', 
+                lastQuestDate: p.lastQuestDate||'', 
+                completedQuests: Array.isArray(p.completedQuests) ? p.completedQuests : [] 
+            };
+        }
+
+        // ส่งข้อมูลแบบ Background Async (ไม่บล็อกหน้าจอผู้ใช้ ไม่หน่วง)
+        function safeSync(payload) {
+            if(SCRIPT_URL === 'ใส่_URL_WEB_APP_ของคุณตรงนี้' || SCRIPT_URL === '') return;
+            navigator.sendBeacon ? navigator.sendBeacon(SCRIPT_URL, JSON.stringify(payload)) : 
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }).catch(() => {});
+        }
+
+        function refreshDataFromCloud(callback) {
+            if(SCRIPT_URL === 'ใส่_URL_WEB_APP_ของคุณตรงนี้') {
+                if(callback) callback();
+                return;
+            }
+            fetch(SCRIPT_URL).then(res => res.json()).then(data => {
+                usersDB = data.users || []; 
+                recordsDB = data.records || [];
+                localStorage.setItem('innov_users_cache_v14', JSON.stringify(usersDB));
+                localStorage.setItem('innov_records_cache_v14', JSON.stringify(recordsDB));
+                if(callback) callback();
+            }).catch(err => {
+                if(callback) callback();
+            });
+        }
+
+        window.onload = () => {
+            // ถ้ามีข้อมูลในแคชแล้ว ให้เปิดเว็บทันทีไม่ต้องรอหมุนติ้ว
+            if(usersDB.length > 0) {
+                document.getElementById('loading-overlay').style.display = 'none';
+            } else {
+                document.getElementById('loading-overlay').style.display = 'flex';
+            }
+            // ซิงค์ข้อมูลล่าสุดจาก Cloud เงียบๆ เบื้องหลัง
+            refreshDataFromCloud(() => {
+                document.getElementById('loading-overlay').style.display = 'none';
+                if(currentUser) updateDashboard();
+            });
+        };
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg;
+            toast.style.borderColor = isError ? '#ff003c' : '#00f0ff';
+            gsap.to(toast, { y: 0, opacity: 1, duration: 0.3, ease: "back.out" });
+            setTimeout(() => gsap.to(toast, { y: 20, opacity: 0, duration: 0.3 }), 3000); playSound(isError ? 'error' : 'success');
+        }
+
+        function toggleAuth(target) {
+            playSound('click');
+            if (target === 'register') { document.getElementById('login-form').style.display = 'none'; document.getElementById('register-form').style.display = 'block'; }
+            else { document.getElementById('register-form').style.display = 'none'; document.getElementById('login-form').style.display = 'block'; }
+        }
+
+        document.getElementById('register-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const roomCode = document.getElementById('reg-roomcode').value.trim().toUpperCase();
+            const user = document.getElementById('reg-user').value.trim();
+            
+            if (usersDB.some(u => u.roomCode === roomCode && u.username === user)) {
+                return showToast('USERNAME นี้มีในห้องนี้แล้ว', true);
+            }
+            
+            const name = document.getElementById('reg-name').value;
+            const newUser = {
+                action: 'registerUser', roomCode: roomCode, username: user, password: document.getElementById('reg-pass').value,
+                name: name, school: document.getElementById('reg-school').value,
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00f0ff&color=000`,
+                gameData: JSON.stringify(getGameData({ points: 300 }))
+            };
+            
+            usersDB.push(newUser);
+            localStorage.setItem('innov_users_cache_v14', JSON.stringify(usersDB));
+            safeSync(newUser);
+            showToast(`สร้าง/เข้าห้อง ${roomCode} สำเร็จ! รับฟรี 300 Pts`);
+            toggleAuth('login');
+            document.getElementById('register-form').reset();
+        });
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const roomCode = document.getElementById('login-roomcode').value.trim().toUpperCase();
+            const user = document.getElementById('login-user').value.trim(); 
+            const pass = document.getElementById('login-pass').value;
+
+            let validUser = usersDB.find(u => u.roomCode === roomCode && u.username === user && u.password === pass);
+            if(validUser) {
+                playSound('success'); currentUser = validUser;
+                gameData = getGameData(validUser.gameData);
+                document.getElementById('auth-view').style.display = 'none'; 
+                document.getElementById('app-view').style.display = 'flex';
+                applyGameData(); updateDashboard(); checkDailyQuest();
+            } else { 
+                showToast('รหัสห้อง, ยูสเซอร์เนม หรือรหัสผ่านไม่ถูกต้อง', true); 
+            }
+        });
+
+        function logout() { location.reload(); }
+
+        function applyGameData() {
+            document.getElementById('ui-points').innerText = gameData.points; 
+            document.getElementById('ui-level').innerText = gameData.level;
+            const expPercent = (gameData.exp % 100);
+            document.getElementById('ui-exp').innerText = expPercent; 
+            document.getElementById('ui-exp-bar').style.width = `${expPercent}%`;
+            
+            document.getElementById('nav-room-badge').innerText = `ROOM: ${currentUser.roomCode}`;
+            document.getElementById('hall-room-label').innerText = `ROOM: ${currentUser.roomCode}`;
+
+            document.getElementById('nav-avatar').src = currentUser.avatar; 
+            document.getElementById('modal-avatar').src = currentUser.avatar;
+            document.getElementById('profile-roomcode').value = currentUser.roomCode;
+            document.getElementById('profile-name').value = currentUser.name; 
+            document.getElementById('profile-school').value = currentUser.school;
+            document.getElementById('profile-status').value = gameData.statusText;
+            
+            const frameClass = gameData.frame && gameData.frame !== 'none' ? `frame-${gameData.frame.split('-')[0]}` : 'frame-none';
+            document.getElementById('ui-frame').className = `w-full h-full rounded-full flex items-center justify-center bg-gray-950 ${frameClass}`;
+            document.getElementById('modal-frame').className = `w-24 h-24 rounded-full p-1 flex items-center justify-center relative cursor-pointer hover:opacity-80 transition group bg-gray-950 ${frameClass}`;
+            document.getElementById('profile-frame-name').innerText = `FRAME: ${gameData.frame}`;
+            
+            document.getElementById('body-bg').className = `min-h-screen flex flex-col items-center p-3 sm:p-6 relative theme-${gameData.theme}`;
+            document.getElementById('profile-theme-name').innerText = `THEME: ${gameData.theme.toUpperCase()}`;
+        }
+
+        function gainRewards(pts, expAmount) {
+            gameData.points += pts; gameData.exp += expAmount;
+            const newLevel = Math.floor(gameData.exp / 100) + 1;
+            if (newLevel > gameData.level) { gameData.level = newLevel; showToast(`LEVEL UP! Lv.${newLevel}`); playSound('gacha-win'); }
+            
+            currentUser.gameData = JSON.stringify(gameData);
+            const index = usersDB.findIndex(u => u.roomCode === currentUser.roomCode && u.username === currentUser.username);
+            if(index !== -1) usersDB[index] = currentUser;
+            localStorage.setItem('innov_users_cache_v14', JSON.stringify(usersDB));
+            applyGameData(); updateDashboard();
+            
+            safeSync({ action: 'syncGameData', roomCode: currentUser.roomCode, username: currentUser.username, gameData: currentUser.gameData });
+        }
+
+        function openProfileModal() { playSound('click'); document.getElementById('profile-modal').style.display = 'flex'; gsap.to('#profile-box', { scale: 1, opacity: 1, duration: 0.3 }); }
+        function closeProfileModal() { playSound('click'); gsap.to('#profile-box', { scale: 0.9, opacity: 0, duration: 0.2, onComplete: () => { document.getElementById('profile-modal').style.display = 'none'; }}); }
+        
+        document.getElementById('avatar-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas'); canvas.width = 120; canvas.height = 120;
+                    canvas.getContext('2d').drawImage(img, 0, 0, 120, 120);
+                    document.getElementById('modal-avatar').src = canvas.toDataURL('image/jpeg', 0.6);
+                    playSound('click');
+                }
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function saveProfile() {
+            let statusInput = document.getElementById('profile-status').value.trim();
+            if(statusInput.length > 30) return showToast('Status ต้องไม่เกิน 30 ตัวอักษร!', true);
+
+            currentUser.name = document.getElementById('profile-name').value;
+            currentUser.school = document.getElementById('profile-school').value;
+            currentUser.avatar = document.getElementById('modal-avatar').src;
+            gameData.statusText = statusInput || 'กำลังพัฒนานวัตกรรมสุดล้ำ 🚀';
+            
+            const index = usersDB.findIndex(u => u.roomCode === currentUser.roomCode && u.username === currentUser.username);
+            if (index !== -1) usersDB[index] = currentUser;
+            localStorage.setItem('innov_users_cache_v14', JSON.stringify(usersDB));
+            
+            applyGameData(); updateDashboard(); closeProfileModal(); showToast('บันทึกโปรไฟล์เรียบร้อย!');
+            safeSync({ action: 'updateProfile', roomCode: currentUser.roomCode, username: currentUser.username, name: currentUser.name, school: currentUser.school, avatar: currentUser.avatar, gameData: JSON.stringify(gameData) });
+        }
+
+        function openRecordModal() { 
+            playSound('click'); 
+            document.getElementById('record-form').reset();
+            document.getElementById('entry-name').value = currentUser.name; 
+            document.getElementById('record-modal').style.display = 'flex'; 
+            gsap.to('#record-box', { scale: 1, opacity: 1, duration: 0.3 }); 
+        }
+        function closeRecordModal() { playSound('click'); gsap.to('#record-box', { scale: 0.9, opacity: 0, duration: 0.2, onComplete: () => { document.getElementById('record-modal').style.display = 'none'; }}); }
+        
+        document.getElementById('record-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const res = document.getElementById('entry-result').value; const lvl = document.getElementById('entry-level').value;
+            let basePts = res === 'Gold' ? 100 : res === 'Silver' ? 75 : res === 'Bronze' ? 50 : 10;
+            let multi = lvl === 'International' ? 4 : lvl === 'National' ? 3 : lvl === 'Regional' ? 2 : 1;
+            let totalGain = basePts * multi;
+
+            const record = {
+                action: 'addRecord', roomCode: currentUser.roomCode, id: Date.now(), name: currentUser.name, school: currentUser.school,
+                grade: document.getElementById('entry-grade').value, room: document.getElementById('entry-room').value,
+                comp: document.getElementById('entry-comp').value, category: document.getElementById('entry-category').value,
+                level: lvl, result: res, date: new Date().toLocaleDateString()
+            };
+            recordsDB.push(record);
+            localStorage.setItem('innov_records_cache_v14', JSON.stringify(recordsDB));
+            
+            closeRecordModal();
+            gainRewards(totalGain, totalGain); 
+            showToast(`ส่งผลงานสำเร็จ! +${totalGain} Pts`);
+            safeSync(record);
+        });
+
+        function getThaiDateString() {
+            const now = new Date();
+            const thaiTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+            return thaiTime.toISOString().split('T')[0];
+        }
+
+        function checkDailyQuest() {
+            const today = getThaiDateString();
+            if(gameData.lastQuestDate !== today) { 
+                gameData.lastQuestDate = today;
+                gameData.completedQuests = []; 
+                document.getElementById('quest-noti').classList.remove('hidden');
+            } else if (gameData.completedQuests.length >= 5) { 
+                document.getElementById('quest-noti').classList.add('hidden'); 
+            }
+        }
+
+        function openQuestModal() {
+            playSound('click'); checkDailyQuest(); renderDailyQuests(); 
+            document.getElementById('quest-modal').style.display = 'flex'; 
+            gsap.to('#quest-box', { scale: 1, opacity: 1, duration: 0.3 });
+        }
+
+        function closeQuestModal() { playSound('click'); checkDailyQuest(); gsap.to('#quest-box', { scale: 0.9, opacity: 0, duration: 0.2, onComplete: () => { document.getElementById('quest-modal').style.display = 'none'; }}); }
+        
+        function getDailyQuestions() {
+            const todayStr = getThaiDateString();
+            let seed = 0; for (let i = 0; i < todayStr.length; i++) { seed += todayStr.charCodeAt(i); }
+            let shuffled = [...masterQuestBank];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                seed = (seed * 9301 + 49297) % 233280;
+                let j = Math.floor((seed / 233280) * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled.slice(0, 5);
+        }
+
+        function renderDailyQuests() {
+            const container = document.getElementById('quest-content'); container.innerHTML = '';
+            const todayQuests = getDailyQuestions();
+
+            todayQuests.forEach((q, i) => {
+                const isDone = gameData.completedQuests.includes(i);
+                let btnHTML = isDone ? `<button class="w-full bg-green-900/50 text-green-400 border border-green-500 py-1.5 rounded text-xs cursor-not-allowed" disabled><i class="fas fa-check-circle mr-1"></i>รับคะแนนแล้ว</button>`
+                            : `<div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5">${q.opts.map((opt, idx) => `<button onclick="answerQuest(${i}, ${idx}, ${q.ans}, this)" class="btn-ans-${i} bg-gray-800 hover:bg-[var(--primary)] hover:text-black transition py-1.5 rounded border border-gray-600 text-xs font-bold">${opt}</button>`).join('')}</div>`;
+                container.innerHTML += `<div class="bg-black/40 p-3 rounded-lg border border-gray-700"><p class="text-xs mb-2 font-bold text-gray-200">Q${i+1}: ${q.q}</p>${btnHTML}</div>`;
+            });
+        }
+        
+        function answerQuest(qIndex, selected, correct, btnElement) {
+            if(gameData.completedQuests.includes(qIndex)) return; 
+            const allBtns = document.querySelectorAll(`.btn-ans-${qIndex}`); allBtns.forEach(b => b.disabled = true);
+            if(selected === correct) {
+                playSound('success'); showToast('ตอบถูก! +20 Pts, +20 EXP');
+                gameData.completedQuests.push(qIndex); gainRewards(20, 20); renderDailyQuests();
+            } else { 
+                playSound('error'); showToast('ตอบผิด! ลองใหม่นะ', true); 
+                setTimeout(() => { allBtns.forEach(b => b.disabled = false); }, 1000);
+            }
+        }
+
+        function openGachaChoice() {
+            if(gameData.points < 100) return showToast('Points ไม่พอ! (ต้องการ 100 Pts)', true);
+            playSound('click'); document.getElementById('gacha-choice-modal').style.display = 'flex';
+        }
+        function closeGachaChoice() { playSound('click'); document.getElementById('gacha-choice-modal').style.display = 'none'; }
+
+        function startGachaProcess(type) {
+            closeGachaChoice();
+            if(gameData.points < 100) return showToast('Points ไม่พอ!', true);
+            
+            gainRewards(-100, 0);
+            document.getElementById('gacha-modal').style.display = 'flex';
+            document.getElementById('gacha-result').style.display = 'none';
+            document.getElementById('ai-processing-box').style.display = 'flex';
+
+            setTimeout(() => {
+                document.getElementById('ai-processing-box').style.display = 'none';
+                const rand = Math.random();
+                let rewardStr = '', rarityText = '', rarityClass = '', isEpic = false; let displayHTML = '';
+
+                if (type === 'theme') {
+                    const themes = ['default', 'neon-pink', 'toxic-green', 'golden-royal', 'rgb-gaming', 'aurora', 'lava', 'blizzard'];
+                    const getTheme = themes[Math.floor(Math.random()*themes.length)];
+                    gameData.theme = getTheme; gainRewards(0,0);
+                    rarityText = 'EPIC THEME!'; rarityClass = 'text-[var(--primary)]'; rewardStr = `ธีมพิเศษ: ${getTheme.toUpperCase()}`;
+                    displayHTML = `<i class="fas fa-palette text-7xl ${rarityClass}"></i>`; playSound('gacha-win');
+                } else {
+                    let frameLevel = 'BABY';
+                    if (rand > 0.96) { frameLevel = 'Diamond'; isEpic = true; rarityText = 'GOD TIER!!'; rarityClass = 'text-cyan-400'; } 
+                    else if (rand > 0.85) { frameLevel = 'RGB'; isEpic = true; rarityText = 'LEGENDARY!'; rarityClass = 'text-red-500'; }
+                    else if (rand > 0.65) { frameLevel = 'Lava'; rarityText = 'EPIC!'; rarityClass = 'text-orange-500'; }
+                    else if (rand > 0.40) { frameLevel = 'LnW'; rarityText = 'RARE!'; rarityClass = 'text-purple-400'; } 
+                    else { frameLevel = 'HARD'; rarityText = 'NORMAL'; rarityClass = 'text-gray-400'; } 
+
+                    gameData.frame = `${frameLevel}-${Math.floor(Math.random()*100)}`; gainRewards(0,0);
+                    rewardStr = `กรอบรูปโปรไฟล์: ${frameLevel} TIER`;
+                    displayHTML = `<div class="w-32 h-32 rounded-full p-1 flex items-center justify-center bg-gray-950 frame-${frameLevel}"><div class="avatar-frame-wrapper"><div class="avatar-box"><img src="${currentUser.avatar}" class="w-full h-full object-cover"></div></div></div>`;
+                    if(isEpic) playSound('gacha-epic'); else playSound('gacha-win');
+                }
+
+                document.getElementById('gacha-result').style.display = 'flex';
+                document.getElementById('gacha-rarity').innerText = rarityText;
+                document.getElementById('gacha-rarity').className = `cyber-font text-5xl mb-4 ${rarityClass}`;
+                document.getElementById('gacha-item-display').innerHTML = displayHTML;
+                document.getElementById('gacha-item-name').innerText = rewardStr;
+            }, 1500);
+        }
+        function closeGachaModal() { playSound('click'); document.getElementById('gacha-modal').style.display = 'none'; }
+
+        function updateDashboard() {
+            const currentRoomUsers = usersDB.filter(u => u.roomCode === currentUser.roomCode);
+            const currentRoomRecords = recordsDB.filter(r => r.roomCode === currentUser.roomCode);
+
+            document.getElementById('stat-entries').innerText = currentRoomRecords.length;
+            
+            const battleContainer = document.getElementById('recent-battles-container'); 
+            battleContainer.innerHTML = '';
+            const displayRecords = [...currentRoomRecords].reverse().slice(0, 8);
+            
+            if(displayRecords.length === 0) {
+                battleContainer.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">ยังไม่มีประวัติการแข่งขันในห้อง ${currentUser.roomCode}</p>`;
+            } else {
+                displayRecords.forEach(r => {
+                    let resBadge = r.result === 'Gold' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500' : (r.result === 'Silver' ? 'bg-gray-400/20 text-gray-300 border-gray-400' : 'bg-orange-500/20 text-orange-400 border-orange-500');
+                    battleContainer.innerHTML += `
+                        <div class="bg-black/50 border border-gray-800 hover:border-[var(--primary)] transition p-3.5 rounded-xl flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-[var(--primary)]/10 border border-[var(--primary)] flex items-center justify-center text-[var(--primary)] font-bold"><i class="fas fa-medal"></i></div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">${r.name} <span class="text-[10px] text-gray-400 font-normal">(${r.school})</span></h4>
+                                    <p class="text-xs text-[var(--primary)]">${r.comp} <span class="text-gray-500">| ${r.category} (${r.level})</span></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs px-3 py-1 rounded-full border ${resBadge} font-bold">${r.result}</span>
+                                <span class="text-[10px] text-gray-500">${r.date}</span>
+                            </div>
+                        </div>`;
+                });
+            }
+
+            const studentStats = {};
+            currentRoomUsers.forEach(u => {
+                let pData = getGameData(u.gameData);
+                studentStats[u.name] = { 
+                    name: u.name, school: u.school, avatar: u.avatar, points: pData.points, level: pData.level, frame: pData.frame, statusText: pData.statusText,
+                    totalEntries: 0,
+                    medals: {
+                        School: { Gold: 0, Silver: 0, Bronze: 0, Part: 0 },
+                        Regional: { Gold: 0, Silver: 0, Bronze: 0, Part: 0 },
+                        National: { Gold: 0, Silver: 0, Bronze: 0, Part: 0 },
+                        International: { Gold: 0, Silver: 0, Bronze: 0, Part: 0 }
+                    }
+                };
+            });
+
+            currentRoomRecords.forEach(r => {
+                if(studentStats[r.name]) {
+                    studentStats[r.name].totalEntries += 1;
+                    let lvl = r.level || 'School';
+                    if(!studentStats[r.name].medals[lvl]) studentStats[r.name].medals[lvl] = { Gold: 0, Silver: 0, Bronze: 0, Part: 0 };
+                    
+                    if(r.result === 'Gold') studentStats[r.name].medals[lvl].Gold += 1;
+                    else if(r.result === 'Silver') studentStats[r.name].medals[lvl].Silver += 1;
+                    else if(r.result === 'Bronze') studentStats[r.name].medals[lvl].Bronze += 1;
+                    else studentStats[r.name].medals[lvl].Part += 1;
+                }
+            });
+
+            const sorted = Object.values(studentStats).sort((a, b) => b.points - a.points).slice(0, 10);
+            const container = document.getElementById('tier-list-container'); container.innerHTML = '';
+
+            if(sorted.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500 col-span-2 text-center py-6">ยังไม่มีสมาชิกในห้องนี้</p>`;
+                return;
+            }
+
+            sorted.forEach((student, index) => {
+                let rankBadge = index === 0 ? 'bg-yellow-500 text-black shadow-[0_0_10px_#eab308]' : (index === 1 ? 'bg-gray-300 text-black' : (index === 2 ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-300'));
+                let cardGlow = index === 0 ? 'border-yellow-500/80 shadow-[0_0_20px_rgba(234,179,8,0.2)]' : (index === 1 ? 'border-gray-400/50' : (index === 2 ? 'border-orange-500/50' : 'border-gray-800'));
+                const frameClass = student.frame && student.frame !== 'none' ? `frame-${student.frame.split('-')[0]}` : 'frame-none';
+
+                let levelHtml = '';
+                const levelLabels = { School: 'โรงเรียน', Regional: 'ภูมิภาค', National: 'ประเทศ', International: 'นานาชาติ' };
+                
+                for(let key in levelLabels) {
+                    let m = student.medals[key];
+                    if(m.Gold > 0 || m.Silver > 0 || m.Bronze > 0) {
+                        levelHtml += `
+                            <div class="bg-black/40 px-2 py-1 rounded border border-gray-800 text-[10px] flex items-center justify-between gap-2">
+                                <span class="text-gray-400 font-semibold">${levelLabels[key]}</span>
+                                <div class="flex gap-1.5 items-center">
+                                    <span class="text-yellow-400">🥇${m.Gold}</span>
+                                    <span class="text-gray-300">🥈${m.Silver}</span>
+                                    <span class="text-orange-400">🥉${m.Bronze}</span>
+                                </div>
+                            </div>`;
+                    }
+                }
+                if(levelHtml === '') levelHtml = `<p class="text-[10px] text-gray-500 italic">ยังไม่มีเหรียญรางวัลในระดับต่างๆ</p>`;
+
+                container.innerHTML += `
+                    <div class="glass-panel p-4 flex flex-col gap-3 border ${cardGlow} relative overflow-hidden group">
+                        <div class="absolute right-3 top-2 text-4xl font-black text-white/5 cyber-font">#${index+1}</div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-14 h-14 rounded-full p-1 flex items-center justify-center ${frameClass} relative shrink-0 bg-gray-950">
+                                <span class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 ${rankBadge} text-[9px] px-2 py-0.5 rounded-full font-bold z-20">#${index+1}</span>
+                                <div class="avatar-frame-wrapper"><div class="avatar-box"><img src="${student.avatar}" class="w-full h-full object-cover"></div></div>
+                            </div>
+                            <div class="flex-1 min-w-0 z-10">
+                                <p class="font-bold text-sm truncate text-white">${student.name}</p>
+                                <p class="text-[10px] text-gray-400 truncate mb-1">${student.school || 'Unspecified School'}</p>
+                                <div class="bg-black/60 px-2 py-0.5 rounded border border-[var(--secondary)]/30 text-[10px] text-[var(--secondary)] italic truncate mb-1.5">
+                                    💬 "${student.statusText || 'กำลังพัฒนานวัตกรรมสุดล้ำ 🚀'}"
+                                };
+                                <div class="flex gap-2 items-center flex-wrap">
+                                    <span class="text-[10px] bg-black/60 px-2 py-0.5 rounded text-yellow-400 border border-yellow-400/40"><i class="fas fa-coins"></i> ${student.points} Pts</span>
+                                    <span class="text-[10px] bg-black/60 px-2 py-0.5 rounded text-[var(--primary)] border border-[var(--primary)]/40">Lv.${student.level}</span>
+                                    <span class="text-[10px] text-gray-400 ml-auto">แข่ง ${student.totalEntries} รายการ</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-800 pt-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5">${levelHtml}</div>
+                    </div>`;
+            });
+        }
+    </script>
+</body>
+</html>
